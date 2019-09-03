@@ -1,4 +1,4 @@
-const adminEmail = 'migueldeolim1@gmail.com'; // ;)
+const adminEmail = 'ceiucab.info@gmail.com'; // ;)
 
 function msgSnack(mesg) {
     // Get the snackbar DIV
