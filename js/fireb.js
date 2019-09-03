@@ -1,5 +1,5 @@
 // Your web app's Firebase configuration
-var firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyD3H93e6rh_bpzc26VYt-_Y75OyThaX75s",
     authDomain: "centro-cei.firebaseapp.com",
     databaseURL: "https://centro-cei.firebaseio.com",
@@ -8,6 +8,8 @@ var firebaseConfig = {
     messagingSenderId: "775416718209",
     appId: "1:775416718209:web:8e4f27fe554572d6"
   };
+const timeRegLimit = 1 * 60 * 60 * 1000; //1h
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var provider = new firebase.auth.GoogleAuthProvider();
