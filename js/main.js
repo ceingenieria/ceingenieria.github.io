@@ -1,6 +1,6 @@
-const dbId = '10tU4O-yzGQL6SP8c00YtooDCghNTEfieLfy98jjNcfg';
+const dbId = '1cqAo0ZjzPww-OERvolkCUh4mUegV4e96BYR0acKIRgU';
 const imgDefault = '/media/default.png';
-const urlApp = 'cedeconomia.github.io/';
+const urlApp = 'ceingenieria.github.io/';
 
 const timeLimit = 2 * 60 * 1000; //2min
 const timeNotiLimit = 2 * 60 * 1000; //2min
@@ -202,13 +202,13 @@ function getDataSheetJSON(name) {
     let pg;
 
     //HORRIBLE -> ARREGLAR
-    if (name == "profesores") {
+    if (name == "recursos") {
         pg = 1;
-    } else if (name == "salones") {
+    } /*else if (name == "salones") {
         pg = 2;
     } else if (name == "recursos") {
         pg = 3;
-    }
+    }*/
 
     let url = "https://spreadsheets.google.com/feeds/list/" + dbId + "/" + pg + "/public/full?alt=json";
 

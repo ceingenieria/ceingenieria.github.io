@@ -1,6 +1,6 @@
 *{
-    --main: #329BC9;
-    --mainDark: #154859;
+    --main: #005E1C;
+    --mainDark: #00380E;
 }
 
 iframe{
@@ -12,7 +12,7 @@ iframe{
 }
 
 .fondo{
-    background-color: #154859;
+    background-color: var(--mainDark);
 }
 
 h3.fondo{
@@ -83,7 +83,7 @@ h5.womr{
 /*#region FONDO*/
     body{
         /*background-color: #2E9CC1;*/
-        /*background-image: linear-gradient(to bottom, #2E9CC1 0%, #154859 200%); 
+        /*background-image: linear-gradient(to bottom, #2E9CC1 0%, var(--mainDark) 200%); 
         background-repeat: no-repeat;
         background-attachment: fixed;*/
         /*margin-top: 55px;*/
@@ -114,7 +114,7 @@ button.navbar-toggler{
 }
 
 .navbar{
-    background-color: #154859 !important;
+    background-color: var(--mainDark) !important;
 }
 
 .animate {
@@ -161,7 +161,7 @@ button.navbar-toggler{
 
 .forma{	
     
-    background-color: #154859;
+    background-color: var(--mainDark);
     position: absolute;
 	top: 0;
 	bottom: 0; 
@@ -200,7 +200,7 @@ i.lgmenu{
 }
 
 .c-menu:hover{
-    background-color: rgba(50, 155, 201, 0.7);
+    background-color: var(--main);
     color: white;
 }
 
@@ -303,7 +303,7 @@ hr.hrwo{
 /*#region FOOTER */
 .footer{
     padding: 0.5em 0;
-    background-color: #154859;
+    background-color: var(--mainDark);
     width: 100%;
 }
 /*#endregion */
