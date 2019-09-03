@@ -1,4 +1,4 @@
-const dbId = '1eKkBkgUsMM62K6Pyl04z4YOElJQHn5OJ8AevhXR-N_Y';
+const dbId = '1cqAo0ZjzPww-OERvolkCUh4mUegV4e96BYR0acKIRgU';
 const imgDefault = '/media/default.png';
 const urlApp = 'ceingenieria.github.io/';
 
@@ -204,13 +204,13 @@ function getDataSheetJSON(name) {
     let pg;
 
     //HORRIBLE -> ARREGLAR
-    if (name == "profesores") {
+    if (name == "recursos") {
         pg = 1;
-    } else if (name == "salones") {
+    } /*else if (name == "salones") {
         pg = 2;
     } else if (name == "recursos") {
         pg = 3;
-    }
+    }*/
 
     let url = "https://spreadsheets.google.com/feeds/list/" + dbId + "/" + pg + "/public/full?alt=json";
 
