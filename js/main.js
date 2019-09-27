@@ -75,6 +75,9 @@ function loadview() {
                     case 'profesores':
                         loadProfesores();
                         break;
+                    case 'asesores':
+                        loadAsesores();
+                        break;
 
                     case 'recursos':
                         loadArchivos();
@@ -238,7 +241,7 @@ function openSubMenu(name, ebutton) {
 
 //Devuelve JSON de la hoja pedida
 function getDataSheetJSON(name) {
-    let paginas  = ["recursos", "consulta", "estAsesores", "matFisico", "calendario"];
+    let paginas  = ["recursos", "consulta", "asesores", "matFisico", "calendario"];
 
     let pg = paginas.indexOf(name) + 1;
     
@@ -278,6 +281,123 @@ function hideLoadingCard() {
         }
     }
 }
+
+//#region ASESORES 
+function loadAsesores() {
+    //Revisamos DataSave y tiempo pasado
+    getSaveData('asesores').then(data => {
+        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
+            //Data guarda y tiempo No pasado o Data guarda y offline
+            console.log("Usando data salvada");
+            genCardAsesores(data.data);
+            hideLoadingCard();
+
+        } else if (navigator.onLine) {
+            //Obtenemos la data json
+            getDataSheetJSON('asesores').then((response) => {
+                if (data) {
+                    //Tiempo paso y online => Actualizamos
+                    console.log("Updating Data asesores");
+                    manageCaseData('update', 'asesores', new Date(), response.feed.entry);
+                } else {
+                    //No hay data guardada => Traemos y salvamos para la prox
+                    console.log("Guardando Data asesores");
+                    manageCaseData('save', 'asesores', new Date(), response.feed.entry);
+                }
+
+                genCardAsesores(response.feed.entry);
+                hideLoadingCard();
+
+            }).catch((error) => {
+                //Internet error => usar data 
+                console.log("ERROR: cathc ", error);
+            })
+        } else {
+            setWarnEmpty(true);
+            hideLoadingCard();
+        }
+    })
+
+
+}
+
+function linkSrcDrive(urlshare) {
+    if (urlshare.includes("drive.google.com/file/d/")) {
+        //Drive img => obtener src
+        let nurl = urlshare.replace('https://', ' ');
+        let aurl = nurl.split('/');
+        console.log('aurl', aurl);
+        return "https://docs.google.com/uc?id=" + aurl[3];
+    } else if (urlshare.includes("drive.google.com/open?id=")) {
+        let nurl = urlshare.replace('https://', ' ');
+        let aurl = nurl.split('?id=');
+        console.log('aurl', aurl);
+        return "https://docs.google.com/uc?id=" + aurl[1];
+    }
+    return urlshare
+}
+
+function genCardAsesores(jdata) {
+    if (jdata) {
+        jdata.forEach(e => {
+            console.log(e);
+            let dCard = document.createElement('div');
+            dCard.setAttribute('class', 'card shadow');
+
+            let foto = document.createElement('img');
+            //En caso de no tener foto
+            if (e['gsx$linkfoto']['$t'] != "") {
+                foto.setAttribute('src', linkSrcDrive(e['gsx$linkfoto']['$t']));
+            } else {
+                foto.setAttribute('src', imgDefault);
+            }
+            foto.setAttribute('class', 'card-img-top');
+            foto.setAttribute('alt', 'Foto de ' + e['gsx$nombre']['$t']);
+
+            dCard.appendChild(foto);
+
+            let dBody = document.createElement('div');
+            dBody.setAttribute('class', 'card-body');
+
+            let cTitle = document.createElement('h5');
+            cTitle.setAttribute('class', 'card-title');
+            cTitle.innerText = e['gsx$nombre']['$t'];
+            dBody.appendChild(cTitle);
+
+            let cSub = document.createElement('h6');
+            cSub.setAttribute('class', 'card-subtitle mb-2 text-muted');
+            cSub.innerText = "Estudiante Asesor"
+            dBody.appendChild(cSub);
+
+
+            mats = document.createElement('p');
+            mats.setAttribute('class', 'card-text');
+            mats.innerText = e['gsx$materias']['$t'];
+            dBody.appendChild(mats);
+            
+            aCont = document.createElement('a');
+            aCont.setAttribute('class', "stretched-link");
+            aCont.setAttribute('href', `https://api.whatsapp.com/send?phone=${e['gsx$contacto']['$t']}`);
+            aCont.innerHTML = 'Contacto <i class="fab fa-whatsapp"></i>';
+            dBody.appendChild(aCont);
+
+
+            dCard.append(dBody);
+
+            
+
+            //Agregamos al DOM
+            document.getElementById('cardAser').appendChild(dCard);
+        });
+    } else {
+        setWarnEmpty(true);
+    }
+
+
+
+}
+//#endregion
+
 
 //#region PROFESORES 
 function loadProfesores() {
@@ -402,7 +522,6 @@ function genCardProf(jdata) {
 
 }
 //#endregion
-
 
 //#region CONSULTA
 let consultaData = [];
