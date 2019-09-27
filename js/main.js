@@ -5,7 +5,7 @@ const urlApp = 'ceingenieria.github.io/';
 const timeLimit = 2 * 60 * 1000; //2min
 const timeNotiLimit = 2 * 60 * 1000; //2min
 
-const DEBUG = false;
+const DEBUG = true;
 
 if (!DEBUG) {
     // define a new console out DEBUG
@@ -82,6 +82,10 @@ function loadview() {
 
                     case 'salones':
                         loadSalones();
+                        break;
+
+                    case 'consulta':
+                        loadConsulta();
                         break;
 
                     case 'eventos':
@@ -234,16 +238,10 @@ function openSubMenu(name, ebutton) {
 
 //Devuelve JSON de la hoja pedida
 function getDataSheetJSON(name) {
-    let pg;
+    let paginas  = ["recursos", "consulta", "estAsesores", "matFisico", "calendario"];
 
-    //HORRIBLE -> ARREGLAR
-    if (name == "recursos") {
-        pg = 1;
-    } /*else if (name == "salones") {
-        pg = 2;
-    } else if (name == "recursos") {
-        pg = 3;
-    }*/
+    let pg = paginas.indexOf(name) + 1;
+    
 
     let url = "https://spreadsheets.google.com/feeds/list/" + dbId + "/" + pg + "/public/full?alt=json";
 
@@ -404,6 +402,142 @@ function genCardProf(jdata) {
 
 }
 //#endregion
+
+
+//#region CONSULTA
+let consultaData = [];
+
+function loadConsulta() {
+    getSaveData('consulta').then(data => {
+        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
+            //Data guarda y tiempo No pasado o Data guarda y offline
+            console.log("Usando data salvada");
+            buildDataConsulta(data.data);
+            genConsulta();
+            hideLoadingCard();
+
+        } else if (navigator.onLine) {
+            //Obtenemos la data json
+            //getDataSheetJSON('salones')
+            getDataSheetJSON('consulta').then((response) => {
+                if (data) {
+                    //Tiempo paso y online => Actualizamos
+                    console.log("Updating Data consulta");
+                    manageCaseData('update', 'consulta', new Date(), response.feed.entry);
+                } else {
+                    //No hay data guardada => Traemos y salvamos para la prox
+                    console.log("Guardando Data consulta");
+                    manageCaseData('save', 'consulta', new Date(), response.feed.entry);
+                }
+
+                buildDataConsulta(response.feed.entry);
+                genConsulta();
+                hideLoadingCard();
+
+            }).catch((error) => {
+                //Internet error => usar data 
+                console.log("ERROR: cathc ", error);
+            })
+        } else {
+            setWarnEmpty(true);
+            hideLoadingCard();
+        }
+    });
+}
+
+function buildDataConsulta(datos) {
+    if (datos) {
+        datos.forEach(d => {
+            //Chequeamos si existe la materia
+            let ref = d['gsx$materia']['$t'];
+            if (consultaData[ref] == null) {
+                //no existe
+                consultaData[ref] = [];
+            }
+            consultaData[ref].push({
+                'prof': d['gsx$profesor']['$t'],
+                'L': d['gsx$lunes']['$t'],
+                'M': d['gsx$martes']['$t'],
+                'Mi': d['gsx$miércoles']['$t'],
+                'J': d['gsx$jueves']['$t'],
+                'V': d['gsx$viernes']['$t'],
+                'salon': d['gsx$salon']['$t']
+            });
+        });
+        console.log("consultaData: ", consultaData);
+    } else {
+        setWarnEmpty(true);
+    }
+
+}
+
+function genConsulta() {
+    //Iteramos sobre cada materia
+    let lTab = document.getElementById("list-tab");
+    let navCont = document.getElementById("nav-tabContent");
+
+
+    for (let mat in consultaData) {
+        //Ordenar alfabeticamente por nombre de prof
+        ordeByKey(consultaData[mat], 'prof');
+        //var horarios = consultaData[mat];
+        //console.log(mat, horarios);
+
+        //Creamos opcion en barra lateral
+        let a = document.createElement('a');
+        a.setAttribute('class', 'list-group-item list-group-item-action');
+        a.setAttribute('id', 'list-' + mat.replace(/ /g, '') + '-list');
+        a.setAttribute('data-toggle', 'list');
+        a.setAttribute('href', '#list-' + mat.replace(/ /g, ''));
+        a.setAttribute('role', 'tab');
+        a.innerText = mat;
+        lTab.appendChild(a);
+
+        //Creamos contenedor de horarios
+        let divM = document.createElement('div');
+        divM.setAttribute('class', 'tab-pane fade');
+        divM.setAttribute('id', 'list-' + mat.replace(/ /g, ''));
+        divM.setAttribute('role', 'tabpanel');
+
+        //Contenedor de lista
+        let divList = document.createElement('div');
+        divList.setAttribute('class', 'list-group list-group-horizontal-md cardSalones');
+
+        //Iteramos por cada materia
+        consultaData[mat].forEach(hor => {
+            let li = document.createElement('li');
+            li.setAttribute('class', 'list-group-item shadow-sm');
+
+            let dTitle = document.createElement('div');
+            dTitle.setAttribute('class', 'd-flex w-100 justify-content-between');
+
+            let title = document.createElement('h5');
+            title.setAttribute('class', 'mb-1');
+            title.innerText = hor['prof'];
+            dTitle.appendChild(title);
+
+            li.appendChild(dTitle);
+
+            let text = document.createElement('p');
+            text.setAttribute('class', 'mb-1');
+            for(let dias in hor){
+                if(dias != "prof" && dias != "salon" && hor[dias]){
+                    text.innerHTML += `<b>${dias}:</b> ${hor[dias]} <br>`
+                }
+            }
+            text.innerHTML += `<b>Lugar: </b> ${hor['salon']}`;
+
+            li.appendChild(text);
+            divList.appendChild(li);
+
+        });
+
+        divM.appendChild(divList);
+        navCont.appendChild(divM);
+    }
+
+}
+//#endregion CONSULTA
 
 //#region SALONES
 let salonesData = [];
