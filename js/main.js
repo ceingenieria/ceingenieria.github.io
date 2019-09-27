@@ -75,6 +75,7 @@ function loadview() {
                     case 'profesores':
                         loadProfesores();
                         break;
+
                     case 'asesores':
                         loadAsesores();
                         break;
@@ -85,6 +86,10 @@ function loadview() {
 
                     case 'salones':
                         loadSalones();
+                        break;
+
+                    case 'materiales':
+                        loadMateriales();
                         break;
 
                     case 'consulta':
@@ -241,7 +246,7 @@ function openSubMenu(name, ebutton) {
 
 //Devuelve JSON de la hoja pedida
 function getDataSheetJSON(name) {
-    let paginas  = ["recursos", "consulta", "asesores", "matFisico", "calendario"];
+    let paginas  = ["recursos", "consulta", "asesores", "materiales", "calendario"];
 
     let pg = paginas.indexOf(name) + 1;
     
@@ -506,6 +511,154 @@ function genCardProf(jdata) {
 
 }
 //#endregion
+
+//#region MATERIALES
+let materialesData = [];
+
+function loadMateriales() {
+    getSaveData('materiales').then(data => {
+        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
+            //Data guarda y tiempo No pasado o Data guarda y offline
+            console.log("Usando data salvada");
+            buildDataMateriales(data.data);
+            genMateriales();
+            hideLoadingCard();
+
+        } else if (navigator.onLine) {
+            //Obtenemos la data json
+            getDataSheetJSON('materiales').then((response) => {
+                if (data) {
+                    //Tiempo paso y online => Actualizamos
+                    console.log("Updating Data materiales");
+                    manageCaseData('update', 'materiales', new Date(), response.feed.entry);
+                } else {
+                    //No hay data guardada => Traemos y salvamos para la prox
+                    console.log("Guardando Data materiales");
+                    manageCaseData('save', 'materiales', new Date(), response.feed.entry);
+                }
+
+                buildDataMateriales(response.feed.entry);
+                genMateriales();
+                hideLoadingCard();
+
+            }).catch((error) => {
+                //Internet error => usar data 
+                console.log("ERROR: cathc ", error);
+            })
+        } else {
+            setWarnEmpty(true);
+            hideLoadingCard();
+        }
+    });
+}
+
+function ordeByKey(arr, campo) {
+    arr.sort((a, b) => (a[campo] > b[campo]) ? 1 : -1);
+}
+
+function buildDataMateriales(datos) {
+    if (datos) {
+        datos.forEach(d => {
+            //Chequeamos si existe la materia
+            let ref = d['gsx$materiaocarrera']['$t'];
+            if (materialesData[ref] == null) {
+                //no existe
+                materialesData[ref] = [];
+            }
+            materialesData[ref].push({
+                'mat': d['gsx$materiaocarrera']['$t'],
+                'tipo': d['gsx$tipo']['$t'],
+                'titulo': d['gsx$tituloocontenido']['$t'],
+                'disp': d['gsx$disponibilidad']['$t'],
+            });
+        });
+        console.log("materialesData: ", materialesData);
+    } else {
+        setWarnEmpty(true);
+    }
+
+}
+
+function genMateriales() {
+    //Iteramos sobre cada materia
+    let lTab = document.getElementById("list-tab");
+    let navCont = document.getElementById("nav-tabContent");
+
+
+    for (let mat in materialesData) {
+        //Ordenar alfabeticamente por nombre de prof
+        ordeByKey(materialesData[mat], 'prof');
+        //var horarios = salonesData[mat];
+        //console.log(mat, horarios);
+
+        //Creamos opcion en barra lateral
+        let a = document.createElement('a');
+        a.setAttribute('class', 'list-group-item list-group-item-action');
+        a.setAttribute('id', 'list-' + mat.replace(/ /g, '') + '-list');
+        a.setAttribute('data-toggle', 'list');
+        a.setAttribute('href', '#list-' + mat.replace(/ /g, ''));
+        a.setAttribute('role', 'tab');
+        a.innerText = mat;
+        lTab.appendChild(a);
+
+        //Creamos contenedor de horarios
+        let divM = document.createElement('div');
+        divM.setAttribute('class', 'tab-pane fade');
+        divM.setAttribute('id', 'list-' + mat.replace(/ /g, ''));
+        divM.setAttribute('role', 'tabpanel');
+
+        //Contenedor de lista
+        let divList = document.createElement('div');
+        divList.setAttribute('class', 'list-group list-group-horizontal-md cardSalones');
+
+        //Iteramos por cada materia
+        materialesData[mat].forEach(hor => {
+            let li = document.createElement('li');
+            li.setAttribute('class', 'list-group-item shadow-sm');
+
+            let dTitle = document.createElement('div');
+            dTitle.setAttribute('class', 'd-flex w-100 justify-content-between');
+
+            let title = document.createElement('h5');
+            title.setAttribute('class', 'mb-1');
+            title.innerText = hor['titulo'];
+            title.innerHTML += getIcon(hor['tipo']);
+            dTitle.appendChild(title);
+
+            li.appendChild(dTitle);
+
+            let text = document.createElement('p');
+            text.setAttribute('class', 'mb-1');
+            text.innerHTML = `<h6 class="text-muted"> ${hor['tipo']} </h6>  Disponibilidad: <b>${hor['disp']}</b>`;
+
+            li.appendChild(text);
+            divList.appendChild(li);
+
+        });
+
+        divM.appendChild(divList);
+        navCont.appendChild(divM);
+    }
+
+}
+
+function getIcon(text){
+    switch(text.toLowerCase()){
+        case 'libro':
+            return ' <i class="fas fa-book text-success"></i>';
+
+        case 'guia':
+            return ' <i class="fas fa-sticky-note text-success"></i>';
+
+        case 'parcial':
+            return ' <i class="fas fa-file-alt text-success"></i>';
+
+        default:
+            return "";
+    }
+}
+//#endregion
+
 
 //#region CONSULTA
 let consultaData = [];
