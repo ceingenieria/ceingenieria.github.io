@@ -321,22 +321,6 @@ function loadAsesores() {
 
 }
 
-function linkSrcDrive(urlshare) {
-    if (urlshare.includes("drive.google.com/file/d/")) {
-        //Drive img => obtener src
-        let nurl = urlshare.replace('https://', ' ');
-        let aurl = nurl.split('/');
-        console.log('aurl', aurl);
-        return "https://docs.google.com/uc?id=" + aurl[3];
-    } else if (urlshare.includes("drive.google.com/open?id=")) {
-        let nurl = urlshare.replace('https://', ' ');
-        let aurl = nurl.split('?id=');
-        console.log('aurl', aurl);
-        return "https://docs.google.com/uc?id=" + aurl[1];
-    }
-    return urlshare
-}
-
 function genCardAsesores(jdata) {
     if (jdata) {
         jdata.forEach(e => {
@@ -376,7 +360,7 @@ function genCardAsesores(jdata) {
             dBody.appendChild(mats);
             
             aCont = document.createElement('a');
-            aCont.setAttribute('class', "stretched-link");
+            aCont.setAttribute('class', "stretched-link text-success");
             aCont.setAttribute('href', `https://api.whatsapp.com/send?phone=${e['gsx$contacto']['$t']}`);
             aCont.innerHTML = 'Contacto <i class="fab fa-whatsapp"></i>';
             dBody.appendChild(aCont);
