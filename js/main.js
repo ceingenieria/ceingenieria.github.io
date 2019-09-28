@@ -96,6 +96,10 @@ function loadview() {
                         loadConsulta();
                         break;
 
+                    case 'calendario':
+                        loadCalendario();
+                        break;
+
                     case 'eventos':
                         docsNotiReq = null;
                         notiStatus = true;
@@ -387,7 +391,6 @@ function genCardAsesores(jdata) {
 }
 //#endregion
 
-
 //#region PROFESORES 
 function loadProfesores() {
     //Revisamos DataSave y tiempo pasado
@@ -659,6 +662,163 @@ function getIcon(text){
 }
 //#endregion
 
+//#region CALENDARIO
+let calendarioData = [];
+
+function loadCalendario() {
+    getSaveData('calendario').then(data => {
+        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
+            //Data guarda y tiempo No pasado o Data guarda y offline
+            console.log("Usando data salvada");
+            buildDataCalendario(data.data);
+            genCalendario();
+            hideLoadingCard();
+
+        } else if (navigator.onLine) {
+            //Obtenemos la data json
+            getDataSheetJSON('calendario').then((response) => {
+                if (data) {
+                    //Tiempo paso y online => Actualizamos
+                    console.log("Updating Data calendario");
+                    manageCaseData('update', 'calendario', new Date(), response.feed.entry);
+                } else {
+                    //No hay data guardada => Traemos y salvamos para la prox
+                    console.log("Guardando Data calendario");
+                    manageCaseData('save', 'calendario', new Date(), response.feed.entry);
+                }
+
+                buildDataCalendario(response.feed.entry);
+                genCalendario();
+                hideLoadingCard();
+
+            }).catch((error) => {
+                //Internet error => usar data 
+                console.log("ERROR: cathc ", error);
+            })
+        } else {
+            setWarnEmpty(true);
+            hideLoadingCard();
+        }
+    });
+}
+
+function buildDataCalendario(datos) {
+    if (datos) {
+        datos.forEach(d => {
+            //Chequeamos si existe la materia
+            let numMes = Number(d['gsx$fecha']['$t'].split('/')[1]);
+
+            let ref = numMes;
+            if (calendarioData[ref] == null) {
+                //no existe
+                calendarioData[ref] = [];
+            }
+            calendarioData[ref].push({
+                'mes': numMes,
+                'fecha': d['gsx$fecha']['$t'],
+                /*'imagen': d['gsx$imagen']['$t'],*/
+                'link': d['gsx$link']['$t'],
+                'titulo': d['gsx$titulo']['$t'],
+                'desc': d['gsx$descripcion']['$t']
+            });
+        });
+        console.log("calendarioData: ", calendarioData);
+    } else {
+        setWarnEmpty(true);
+    }
+
+}
+
+function genCalendario() {
+    //Iteramos sobre cada materia
+    let lTab = document.getElementById("list-tab");
+    let navCont = document.getElementById("nav-tabContent");
+
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+    for (let mat in calendarioData) {
+        //Ordenar por fecha
+        ordeByKey(calendarioData[mat], 'fecha');
+        //var horarios = salonesData[mat];
+        //console.log(mat, horarios);
+
+        //Creamos opcion en barra lateral
+        let a = document.createElement('a');
+        a.setAttribute('class', 'list-group-item list-group-item-action');
+        a.setAttribute('id', 'list-' + mat.replace(/ /g, '') + '-list');
+        a.setAttribute('data-toggle', 'list');
+        a.setAttribute('href', '#list-' + mat.replace(/ /g, ''));
+        a.setAttribute('role', 'tab');
+        a.innerText = meses[mat-1];
+        lTab.appendChild(a);
+
+        //Creamos contenedor de horarios
+        let divM = document.createElement('div');
+        divM.setAttribute('class', 'tab-pane fade');
+        divM.setAttribute('id', 'list-' + mat.replace(/ /g, ''));
+        divM.setAttribute('role', 'tabpanel');
+
+        //Contenedor de lista
+        let divList = document.createElement('div');
+        divList.setAttribute('class', 'list-group list-group-horizontal-md cardSalones');
+
+        //Iteramos por cada materia
+        calendarioData[mat].forEach(hor => {
+            let li = document.createElement('li');
+            li.setAttribute('class', 'list-group-item shadow-sm');
+
+            let dTitle = document.createElement('div');
+            dTitle.setAttribute('class', 'd-flex w-100 justify-content-between');
+
+            //Solo si hay foto
+           /* if (hor['imagen'] != "") {
+                let foto = document.createElement('img');
+                foto.setAttribute('src', linkSrcDrive(hor['imagen']));
+                foto.setAttribute('class', 'card-img-top size');
+                foto.setAttribute('alt', 'Imagen del evento ');
+                li.appendChild(foto);
+
+                let brk = document.createElement('br');
+                li.appendChild(brk);
+                let brk2 = document.createElement('br');
+                li.appendChild(brk2);
+            } */
+            
+
+            let title = document.createElement('h5');
+            title.setAttribute('class', 'mb-1');
+            title.innerText = hor['titulo'];
+            dTitle.appendChild(title);
+
+            li.appendChild(dTitle);
+
+            let cSub = document.createElement('h6');
+            cSub.setAttribute('class', 'text-muted');
+            cSub.innerText = hor['fecha'];
+            li.appendChild(cSub);
+
+            let text = document.createElement('p');
+            text.setAttribute('class', 'mb-1');
+            text.innerHTML = hor['desc'];
+
+            li.appendChild(text);
+
+            aCont = document.createElement('a');
+            aCont.setAttribute('class', "stretched-link text-success");
+            aCont.setAttribute('href', '#');
+            aCont.innerHTML = 'Link';
+            li.appendChild(aCont);
+
+            divList.appendChild(li);
+
+        });
+
+        divM.appendChild(divList);
+        navCont.appendChild(divM);
+    }
+
+}
+//#endregion
 
 //#region CONSULTA
 let consultaData = [];
@@ -1052,7 +1212,6 @@ function genCardFile(jfiles) {
 
 }
 //#endregion
-
 
 //#region NOTIFICACIONES
 let docsNotiReq = null;
