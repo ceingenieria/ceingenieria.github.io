@@ -8,8 +8,8 @@ const precacheFiles = [
   '/modalnt.html?v=504',
   '/warnempty.html?v=504',
   /* PAGES */
-  '/index.html?v=10',
-  '/inicio/index.html?v=10',
+  '/index.html?v=11',
+  '/inicio/index.html?v=11',
   /* TEMPLATES */
   '/templates/recursos.html?v=204',
   '/templates/configuracion.html?v=204',
