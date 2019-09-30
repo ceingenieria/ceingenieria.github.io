@@ -2,10 +2,10 @@ const dbId = '1cqAo0ZjzPww-OERvolkCUh4mUegV4e96BYR0acKIRgU';
 const imgDefault = '/media/default.png';
 const urlApp = 'ceingenieria.github.io/';
 
-const timeLimit = 2 * 60 * 1000; //2min
-const timeNotiLimit = 2 * 60 * 1000; //2min
+const timeLimit = 15 * 60 * 1000; //15min
+const timeNotiLimit = 10 * 60 * 1000; //10min
 
-const DEBUG = true;
+const DEBUG = false;
 
 if (!DEBUG) {
     // define a new console out DEBUG
@@ -628,7 +628,7 @@ function genDigital() {
 
             let text = document.createElement('p');
             text.setAttribute('class', 'mb-1');
-            text.innerHTML = `<h6 class="text-muted"> ${hor['tipo']} </h6> <a href="${hor['link']}" class="stretched-link text-success" >Link</a> `;
+            text.innerHTML = `<h6 class="text-muted"> ${hor['tipo']} </h6> <a href="${hor['link']}" class="stretched-link text-success" onclick="OnClickGa('click', 'matDig', '${hor['titulo']}', '${hor['link']}'); return false;">Link</a> `;
 
             li.appendChild(text);
             divList.appendChild(li);

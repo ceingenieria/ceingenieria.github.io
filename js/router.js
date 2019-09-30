@@ -76,7 +76,7 @@ function titleChanger(){
     
 }
 
-function OnClickGa(act, typeInter , lb){
+function OnClickGa(act, typeInter , lb, url=null){
     //si existe etiqueta hacer:
     if(lb){
         //console.log('enter');
@@ -89,6 +89,9 @@ function OnClickGa(act, typeInter , lb){
         gtag('event', act, {
             'event_category': typeInter 
           });
+    }
+    if(url){
+        document.location = url;
     }
     
   }
