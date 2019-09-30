@@ -81,7 +81,7 @@ function loadview() {
                         break;
 
                     case 'recursos':
-                        loadArchivos();
+                        loadDigital();
                         break;
 
                     case 'salones':
@@ -250,7 +250,7 @@ function openSubMenu(name, ebutton) {
 
 //Devuelve JSON de la hoja pedida
 function getDataSheetJSON(name) {
-    let paginas  = ["recursos", "consulta", "asesores", "materiales", "calendario"];
+    let paginas  = ["digital", "consulta", "asesores", "materiales", "calendario"];
 
     let pg = paginas.indexOf(name) + 1;
     
@@ -515,6 +515,133 @@ function genCardProf(jdata) {
 }
 //#endregion
 
+//#region DIGITAL
+let digitalData = [];
+
+function loadDigital() {
+    getSaveData('digital').then(data => {
+        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
+            //Data guarda y tiempo No pasado o Data guarda y offline
+            console.log("Usando data salvada");
+            buildDataDigital(data.data);
+            genDigital();
+            hideLoadingCard();
+
+        } else if (navigator.onLine) {
+            //Obtenemos la data json
+            getDataSheetJSON('digital').then((response) => {
+                if (data) {
+                    //Tiempo paso y online => Actualizamos
+                    console.log("Updating Data digital");
+                    manageCaseData('update', 'digital', new Date(), response.feed.entry);
+                } else {
+                    //No hay data guardada => Traemos y salvamos para la prox
+                    console.log("Guardando Data digital");
+                    manageCaseData('save', 'digital', new Date(), response.feed.entry);
+                }
+
+                buildDataDigital(response.feed.entry);
+                genDigital();
+                hideLoadingCard();
+
+            }).catch((error) => {
+                //Internet error => usar data 
+                console.log("ERROR: cathc ", error);
+            })
+        } else {
+            setWarnEmpty(true);
+            hideLoadingCard();
+        }
+    });
+}
+
+function buildDataDigital(datos) {
+    if (datos) {
+        datos.forEach(d => {
+            //Chequeamos si existe la materia
+            let ref = d['gsx$carrera']['$t'];
+            if (digitalData[ref] == null) {
+                //no existe
+                digitalData[ref] = [];
+            }
+            digitalData[ref].push({
+                'mat': d['gsx$carrera']['$t'],
+                'tipo': d['gsx$tipo']['$t'],
+                'titulo': d['gsx$tituloocontenido']['$t'],
+                'link': d['gsx$linkmaterial']['$t'],
+            });
+        });
+        console.log("digitalData: ", digitalData);
+    } else {
+        setWarnEmpty(true);
+    }
+
+}
+
+function genDigital() {
+    //Iteramos sobre cada materia
+    let lTab = document.getElementById("list-tab");
+    let navCont = document.getElementById("nav-tabContent");
+
+
+    for (let mat in digitalData) {
+        //Ordenar alfabeticamente por nombre de tituloocontenido
+        ordeByKey(digitalData[mat], 'prof');
+        //var horarios = salonesData[mat];
+        //console.log(mat, horarios);
+
+        //Creamos opcion en barra lateral
+        let a = document.createElement('a');
+        a.setAttribute('class', 'list-group-item list-group-item-action');
+        a.setAttribute('id', 'list-' + mat.replace(/ /g, '') + '-list');
+        a.setAttribute('data-toggle', 'list');
+        a.setAttribute('href', '#list-' + mat.replace(/ /g, ''));
+        a.setAttribute('role', 'tab');
+        a.innerText = mat;
+        lTab.appendChild(a);
+
+        //Creamos contenedor de horarios
+        let divM = document.createElement('div');
+        divM.setAttribute('class', 'tab-pane fade');
+        divM.setAttribute('id', 'list-' + mat.replace(/ /g, ''));
+        divM.setAttribute('role', 'tabpanel');
+
+        //Contenedor de lista
+        let divList = document.createElement('div');
+        divList.setAttribute('class', 'list-group list-group-horizontal-md cardSalones');
+
+        //Iteramos por cada materia
+        digitalData[mat].forEach(hor => {
+            let li = document.createElement('li');
+            li.setAttribute('class', 'list-group-item shadow-sm');
+
+            let dTitle = document.createElement('div');
+            dTitle.setAttribute('class', 'd-flex w-100 justify-content-between');
+
+            let title = document.createElement('h5');
+            title.setAttribute('class', 'mb-1');
+            title.innerText = hor['titulo'];
+            title.innerHTML += getIcon(hor['tipo']);
+            dTitle.appendChild(title);
+            
+            li.appendChild(dTitle);
+
+            let text = document.createElement('p');
+            text.setAttribute('class', 'mb-1');
+            text.innerHTML = `<h6 class="text-muted"> ${hor['tipo']} </h6> <a href="${hor['link']}" class="stretched-link text-success" >Link</a> `;
+
+            li.appendChild(text);
+            divList.appendChild(li);
+        });
+        
+        divM.appendChild(divList);
+        navCont.appendChild(divM);
+    }
+
+}
+
+//#endregion
+
 //#region MATERIALES
 let materialesData = [];
 
@@ -590,7 +717,7 @@ function genMateriales() {
 
     for (let mat in materialesData) {
         //Ordenar alfabeticamente por nombre de prof
-        ordeByKey(materialesData[mat], 'prof');
+        ordeByKey(materialesData[mat], 'tituloocontenido');
         //var horarios = salonesData[mat];
         //console.log(mat, horarios);
 
@@ -655,6 +782,9 @@ function getIcon(text){
 
         case 'parcial':
             return ' <i class="fas fa-file-alt text-success"></i>';
+
+        case 'carpeta':
+            return ' <i class="fas fa-folder text-success"></i>';
 
         default:
             return "";
@@ -1085,44 +1215,6 @@ function genSalones() {
 }
 //#endregion
 
-//#region ARCHIVOS
-function loadArchivos() {
-    //Revisamos DataSave y tiempo pasado
-    getSaveData('recursos').then(data => {
-        if (data.data && ((data.time.getTime() + timeLimit > new Date().getTime()) || !navigator.onLine)) {
-            //Data guarda y tiempo No pasado o Data guarda y offline
-            console.log("Usando data salvada");
-            genCardFile(data.data);
-            hideLoadingCard();
-
-        } else if (navigator.onLine) {
-            //Obtenemos la data json
-            getDataSheetJSON('recursos').then((response) => {
-                if (data) {
-                    //Tiempo paso y online => Actualizamos
-                    console.log("Updating Data profe");
-                    manageCaseData('update', 'recursos', new Date(), response.feed.entry);
-                } else {
-                    //No hay data guardada => Traemos y salvamos para la prox
-                    console.log("Guardando Data profe");
-                    manageCaseData('save', 'recursos', new Date(), response.feed.entry);
-                }
-
-                genCardFile(response.feed.entry);
-                hideLoadingCard();
-
-            }).catch((error) => {
-                //Internet error => usar data 
-                console.log("ERROR: cathc ", error);
-            })
-        } else {
-            hideLoadingCard();
-            setWarnEmpty(true);
-        }
-    })
-
-}
-
 function iconByUrl(url) {
     let icon = document.createElement('i');
 
@@ -1163,55 +1255,6 @@ function getColor(text) {
             return "badge-info";
     }
 }
-
-function genCardFile(jfiles) {
-    let divM = document.getElementById("cardFile");
-
-    if (jfiles) {
-        jfiles.forEach(f => {
-            let divCard = document.createElement('div');
-            divCard.setAttribute('class', 'card');
-
-            let cBody = document.createElement('div');
-            cBody.setAttribute('class', 'card-body');
-
-            let title = document.createElement('h5');
-            title.setAttribute('class', 'card-title');
-            title.innerText = f['gsx$titulodematerial']['$t'] + ' ';
-            title.appendChild(iconByUrl(f['gsx$linkmaterial']['$t']));
-            cBody.appendChild(title);
-
-            let sub = document.createElement('h6');
-            sub.setAttribute('class', 'card-subtitle mb-2 text-muted');
-            if (f['gsx$mensaje']['$t'] != "") {
-                let newAv = document.createElement('span');
-                newAv.setAttribute('class', 'badge ' + getColor(f['gsx$mensaje']['$t']));
-                newAv.innerText = f['gsx$mensaje']['$t'];
-                sub.appendChild(newAv);
-            }
-            cBody.appendChild(sub);
-
-            let txt = document.createElement('p');
-            txt.setAttribute('class', 'card-text');
-            txt.innerText = f['gsx$brevedescripcion']['$t'];
-            cBody.appendChild(txt);
-
-            let a = document.createElement('a');
-            a.setAttribute('class', 'card-link stretched-link');
-            a.setAttribute('href', f['gsx$linkmaterial']['$t']);
-            a.innerText = "Link";
-            cBody.appendChild(a);
-
-            divCard.appendChild(cBody);
-            divM.appendChild(divCard);
-
-        });
-    } else {
-        setWarnEmpty(true);
-    }
-
-}
-//#endregion
 
 //#region NOTIFICACIONES
 let docsNotiReq = null;
