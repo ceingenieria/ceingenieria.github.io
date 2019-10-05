@@ -38,6 +38,8 @@ const precacheFiles = [
   '/js/social.js?v=111',
   /* SOME MEDIA */
   '/media/logoCEDEC.png?v=5',
+  '/media/logoOrin.png?v=5',
+  '/media/originalBlur10.jpg?v=5',
   /* SRC */
   '/src/firebase/firebase-messaging.min.js',
   '/src/firebase/firebase-firestore.min.js',
