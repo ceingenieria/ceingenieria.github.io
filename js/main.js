@@ -368,12 +368,14 @@ function genCardAsesores(jdata) {
             mats.innerText = e['gsx$materias']['$t'];
             dBody.appendChild(mats);
             
-            aCont = document.createElement('a');
-            aCont.setAttribute('class', "stretched-link text-success");
-            aCont.setAttribute('href', `https://api.whatsapp.com/send?phone=${e['gsx$contacto']['$t']}`);
-            aCont.innerHTML = 'Contacto <i class="fab fa-whatsapp"></i>';
-            dBody.appendChild(aCont);
-
+            if(e['gsx$contacto']['$t'] != ""){
+                aCont = document.createElement('a');
+                aCont.setAttribute('class', "stretched-link text-success");
+                aCont.setAttribute('href', `https://api.whatsapp.com/send?phone=${e['gsx$contacto']['$t']}`);
+                aCont.innerHTML = 'Contacto <i class="fab fa-whatsapp"></i>';
+                dBody.appendChild(aCont);
+            }
+            
 
             dCard.append(dBody);
 
@@ -933,11 +935,14 @@ function genCalendario() {
 
             li.appendChild(text);
 
-            aCont = document.createElement('a');
-            aCont.setAttribute('class', "stretched-link text-success");
-            aCont.setAttribute('href', '#');
-            aCont.innerHTML = 'Link';
-            li.appendChild(aCont);
+            if(hor['link'] != ""){
+                aCont = document.createElement('a');
+                aCont.setAttribute('class', "stretched-link text-success");
+                aCont.setAttribute('href', hor['link']);
+                aCont.innerHTML = 'Link';
+                li.appendChild(aCont);
+            }
+           
 
             divList.appendChild(li);
 
