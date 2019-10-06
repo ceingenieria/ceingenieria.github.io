@@ -188,9 +188,11 @@ function SaveRegToDB(mode = '') {
                         'avisosU': true,
                         'eventosU': true,
                         'acadCoor': true,
-                        'finCoor': true,
                         'socialCoor': true,
+                        'culCoor': true,
                         'depCoor': true,
+                        'logCoor': true,
+                        'invCoor': true,
                         'centroEst': true
                     }
                 };
@@ -250,9 +252,11 @@ function getFormTopic() {
         'avisosU': document.getElementById('avisosU').checked,
         'eventosU': document.getElementById('eventosU').checked,
         'acadCoor': document.getElementById('acadCoor').checked,
-        'finCoor': document.getElementById('finCoor').checked,
         'socialCoor': document.getElementById('socialCoor').checked,
+        'culCoor': document.getElementById('culCoor').checked,
         'depCoor': document.getElementById('depCoor').checked,
+        'logCoor': document.getElementById('logCoor').checked,
+        'invCoor': document.getElementById('invCoor').checked,
         'centroEst': document.getElementById('centroEst').checked,
         'ucab': document.getElementById('notiState').checked
     }
@@ -266,6 +270,7 @@ function setFormTopic(){
 
             for(let ntopic in topics){
                 if(ntopic != 'ucab'){
+                    console.warn(ntopic);
                     document.getElementById(ntopic).checked = topics[ntopic];
                 }else if(ntopic == 'ucab'){
                     document.getElementById('notiState').checked = topics[ntopic];
