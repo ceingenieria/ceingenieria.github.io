@@ -337,17 +337,18 @@ function genCardAsesores(jdata) {
             let dCard = document.createElement('div');
             dCard.setAttribute('class', 'card shadow');
 
-            let foto = document.createElement('img');
-            //En caso de no tener foto
+          
+            //Foto
             if (e['gsx$linkfoto']['$t'] != "") {
-                foto.setAttribute('src', linkSrcDrive(e['gsx$linkfoto']['$t']));
-            } else {
-                foto.setAttribute('src', imgDefault);
-            }
-            foto.setAttribute('class', 'card-img-top');
-            foto.setAttribute('alt', 'Foto de ' + e['gsx$nombre']['$t']);
+                let foto = document.createElement('img');
 
-            dCard.appendChild(foto);
+                foto.setAttribute('src', linkSrcDrive(e['gsx$linkfoto']['$t']));
+                foto.setAttribute('class', 'card-img-top');
+                foto.setAttribute('alt', 'Foto de ' + e['gsx$nombre']['$t']);
+    
+                dCard.appendChild(foto);
+            } 
+           
 
             let dBody = document.createElement('div');
             dBody.setAttribute('class', 'card-body');
@@ -357,10 +358,19 @@ function genCardAsesores(jdata) {
             cTitle.innerText = e['gsx$nombre']['$t'];
             dBody.appendChild(cTitle);
 
-            let cSub = document.createElement('h6');
-            cSub.setAttribute('class', 'card-subtitle mb-2 text-muted');
-            cSub.innerText = "Estudiante Asesor"
-            dBody.appendChild(cSub);
+            if(e['gsx$aporte']['$t'].toLowerCase() == "tutor"){
+                let cSub = document.createElement('h6');
+                cSub.setAttribute('class', 'card-subtitle mb-2 text-muted');
+                cSub.innerText = "Tutor Académico";
+                dBody.appendChild(cSub);
+            }else{
+                let cSub = document.createElement('h6');
+                cSub.setAttribute('class', 'card-subtitle mb-2 text-muted');
+                cSub.innerText = "Estudiante Asesor";
+                dBody.appendChild(cSub);
+            }
+
+            
 
 
             mats = document.createElement('p');
