@@ -1,4 +1,4 @@
-const CACHE = "centroEconomia-precache";
+const CACHE = "centroING-precache";
 const precacheFiles = [
   /* Add an array of files to precache for your app */
   /* M-IMPORT */
@@ -11,15 +11,15 @@ const precacheFiles = [
   '/index.html?v=11',
   '/inicio/index.html?v=11',
   /* TEMPLATES */
-  '/templates/recursos.html?v=208',
-  '/templates/configuracion.html?v=208',
-  '/templates/eventos.html?v=208',
-  '/templates/informacion.html?v=208',
-  '/templates/menu.html?v=208',
-  '/templates/progresa.html?v=208',
-  '/templates/calendario.html?v=208',
-  '/templates/consulta.html?v=208',
-  '/templates/materiales.html?v=208',
+  '/templates/recursos.html?v=209',
+  '/templates/configuracion.html?v=209',
+  '/templates/eventos.html?v=209',
+  '/templates/informacion.html?v=209',
+  '/templates/menu.html?v=209',
+  '/templates/progresa.html?v=209',
+  '/templates/calendario.html?v=209',
+  '/templates/consulta.html?v=209',
+  '/templates/materiales.html?v=209',
   /* STYLES */
   '/css/conf.css?v=603',
   '/css/login.css?v=603',
@@ -28,14 +28,14 @@ const precacheFiles = [
   '/css/style.css?v=603',
   '/css/snack.css?v=603',
   /* JS */
-  '/js/dbsave.js?v=114',
-  '/js/element.js?v=114',
-  '/js/fireb.js?v=114',
-  '/js/login.js?v=114',
-  '/js/main.js?v=114',
-  '/js/notifications.js?v=114',
-  '/js/router.js?v=114',
-  '/js/social.js?v=114',
+  '/js/dbsave.js?v=115',
+  '/js/element.js?v=115',
+  '/js/fireb.js?v=115',
+  '/js/login.js?v=115',
+  '/js/main.js?v=115',
+  '/js/notifications.js?v=115',
+  '/js/router.js?v=115',
+  '/js/social.js?v=115',
   /* SOME MEDIA */
   '/media/logoCEDEC.png?v=5',
   '/media/logoOrin.png?v=5',

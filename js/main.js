@@ -5,7 +5,7 @@ const urlApp = 'ceingenieria.github.io/';
 const timeLimit = 15 * 60 * 1000; //15min
 const timeNotiLimit = 10 * 60 * 1000; //10min
 
-const DEBUG = true;
+const DEBUG = false;
 
 if (!DEBUG) {
     // define a new console out DEBUG
