@@ -114,6 +114,7 @@ function loadview() {
                         break;
 
                     case '':
+                        updateSWcache();
                         document.getElementById("mainbtn").classList.add("active-opt");
                         if (rest == "adminMode") {
                             document.getElementById("card-admin").style.display = "block";
