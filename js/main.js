@@ -570,6 +570,7 @@ function loadDigital() {
 
 function buildDataDigital(datos) {
     if (datos) {
+        digitalData = [];
         datos.forEach(d => {
             //Chequeamos si existe la materia
             let ref = d['gsx$carrera']['$t'];
@@ -701,6 +702,7 @@ function ordeByKey(arr, campo) {
 
 function buildDataMateriales(datos) {
     if (datos) {
+        materialesData = [];
         datos.forEach(d => {
             //Chequeamos si existe la materia
             let ref = d['gsx$materiaocarrera']['$t'];
@@ -847,6 +849,7 @@ function loadCalendario() {
 
 function buildDataCalendario(datos) {
     if (datos) {
+        calendarioData = [];
         datos.forEach(d => {
             //Chequeamos si existe la materia
             let numMes = Number(d['gsx$fecha']['$t'].split('/')[1]);
@@ -1009,6 +1012,7 @@ function loadConsulta() {
 
 function buildDataConsulta(datos) {
     if (datos) {
+        consultaData = [];
         datos.forEach(d => {
             //Chequeamos si existe la materia
             let ref = d['gsx$materia']['$t'];
@@ -1037,7 +1041,6 @@ function genConsulta() {
     //Iteramos sobre cada materia
     let lTab = document.getElementById("list-tab");
     let navCont = document.getElementById("nav-tabContent");
-
 
     for (let mat in consultaData) {
         //Ordenar alfabeticamente por nombre de prof
